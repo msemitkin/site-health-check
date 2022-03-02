@@ -13,13 +13,12 @@ import java.net.http.HttpResponse
 class HealthCheckService {
 
     fun check(url: String): Response {
-        val client = HttpClient.newBuilder().build()
-        val httpRequest = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .GET()
-            .build()
+        val client = HttpClient.newHttpClient()
         val stopWatch = StopWatch().also { it.start() }
-        val response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString())
+        val response = client.send(
+            HttpRequest.newBuilder(URI.create(url)).build(),
+            HttpResponse.BodyHandlers.ofString()
+        )
         return Response(
             HttpStatus.valueOf(response.statusCode()),
             with(stopWatch) { stop(); lastTaskTimeMillis }
