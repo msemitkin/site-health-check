@@ -2,6 +2,7 @@ package com.sitehealthcheck.controller
 
 import com.sitehealthcheck.*
 import com.sitehealthcheck.core.GetHealthCheckService
+import com.sitehealthcheck.core.HealthInfo
 import com.sitehealthcheck.core.SiteService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -15,7 +16,7 @@ class HealthCheckController(
 ) {
 
     @GetMapping("sites/statuses")
-    fun getStatuses(): List<HealthEntity> = getHealthCheckService.getHealthInfo()
+    fun getStatuses(): List<HealthInfo> = getHealthCheckService.getHealthInfo()
 
     @PostMapping("sites")
     fun addSite(@RequestBody uri: String) {
