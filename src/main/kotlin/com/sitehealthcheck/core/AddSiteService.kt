@@ -5,7 +5,7 @@ import com.sitehealthcheck.repository.SiteRepository
 import org.springframework.stereotype.Service
 
 @Service
-class AddHealthCheckService(
+class AddSiteService(
     private val siteRepository: SiteRepository
 ) {
 

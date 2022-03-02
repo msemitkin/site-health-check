@@ -9,7 +9,7 @@ class GetHealthCheckService(
     private val repository: HealthCheckRepository
 ) {
 
-    fun getLastHealthInfo(): List<HealthEntity> = repository.findAll()
+    fun getHealthInfo(): List<HealthEntity> = repository.findAll()
         .groupBy { healthCheck -> healthCheck.uri!! }
         .map { (_, group) ->
             group.maxByOrNull { healthCheck -> healthCheck.healthCheckTime!! }
