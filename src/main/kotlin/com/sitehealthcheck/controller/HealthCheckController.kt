@@ -1,9 +1,8 @@
 package com.sitehealthcheck.controller
 
 import com.sitehealthcheck.*
-import com.sitehealthcheck.core.AddSiteService
 import com.sitehealthcheck.core.GetHealthCheckService
-import com.sitehealthcheck.repository.SiteRepository
+import com.sitehealthcheck.core.SiteService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -12,8 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class HealthCheckController(
     private val getHealthCheckService: GetHealthCheckService,
-    private val addSiteService: AddSiteService,
-    private val siteRepository: SiteRepository
+    private val siteService: SiteService
 ) {
 
     @GetMapping("sites/statuses")
@@ -21,10 +19,10 @@ class HealthCheckController(
 
     @PostMapping("sites")
     fun addSite(@RequestBody uri: String) {
-        addSiteService.addHealthCheck(uri)
+        siteService.saveSite(uri)
     }
 
     @GetMapping("sites")
-    fun getSites(): List<SiteEntity> = siteRepository.findAll()
+    fun getSites(): List<SiteEntity> = siteService.getAllSites()
 
 }

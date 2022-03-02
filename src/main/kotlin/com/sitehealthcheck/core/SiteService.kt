@@ -5,14 +5,13 @@ import com.sitehealthcheck.repository.SiteRepository
 import org.springframework.stereotype.Service
 
 @Service
-class AddSiteService(
-    private val siteRepository: SiteRepository
-) {
+class SiteService(private val siteRepository: SiteRepository) {
 
-    fun addHealthCheck(uri: String) {
-        val siteEntity = SiteEntity()
-            .apply { this.uri = uri }
+    fun saveSite(uri: String) {
+        val siteEntity = SiteEntity().apply { this.uri = uri }
         siteRepository.save(siteEntity)
     }
+
+    fun getAllSites(): List<SiteEntity> = siteRepository.findAll()
 
 }
