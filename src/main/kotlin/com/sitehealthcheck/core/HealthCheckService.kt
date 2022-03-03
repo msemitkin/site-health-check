@@ -21,7 +21,7 @@ class HealthCheckService {
         )
         return Response(
             HttpStatus.valueOf(response.statusCode()),
-            with(stopWatch) { stop(); lastTaskTimeMillis }
+            stopWatch.run { stop(); lastTaskTimeMillis }
         )
     }
 
