@@ -13,7 +13,12 @@ class GetHealthCheckService(
 
     companion object {
         private val ALIVE_STATUSES =
-            setOf(HttpStatus.OK.value(), HttpStatus.FORBIDDEN.value(), HttpStatus.FOUND.value())
+            setOf(
+                HttpStatus.OK.value(),
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FOUND.value(),
+                HttpStatus.MOVED_PERMANENTLY.value()
+            )
     }
 
     fun getHealthInfo(): List<HealthInfo> {
@@ -29,7 +34,10 @@ class GetHealthCheckService(
     private fun mapToHealthStatus(healthEntity: HealthEntity): HealthInfo {
         return if (healthEntity.responseStatusCode !in ALIVE_STATUSES) {
             HealthInfo(healthEntity.uri!!, HealthStatus.DOWN)
-        } else if (healthEntity.responseTime!! > Duration.ofSeconds(10).toMillis()) {
+        } else if (
+            healthEntity.responseTime!! > Duration.ofSeconds(10).toMillis()
+            || healthEntity.responseTime!! == -1L
+        ) {
             HealthInfo(healthEntity.uri!!, HealthStatus.DOWN)
         } else {
             HealthInfo(healthEntity.uri!!, HealthStatus.UP)
