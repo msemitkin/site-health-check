@@ -21,22 +21,30 @@ class UpdateHealthCheckService(
 
     @Scheduled(fixedRate = 10, timeUnit = TimeUnit.SECONDS)
     fun updateHealthCheck() {
-        val stopWatch = StopWatch().apply { start() }
-        val healthEntities = siteRepository.findAll()
-            .map { it.uri!! }
-            .associateWith { healthCheckService.check(it) }
-            .map { (uri, response) -> uri to response }
-            .map(::toHealthEntity)
-        healthCheckRepository.saveAll(healthEntities)
-        logger.info("Updating of statuses took ${stopWatch.run { stop(); lastTaskTimeMillis }} ms")
+        val uris: List<String> = siteRepository.findAll().map { it.uri!! }
+        if (uris.isNotEmpty()) {
+            val stopWatch = StopWatch().apply { start() }
+            val executors: ExecutorService = Executors.newFixedThreadPool(uris.size)
+
+            val uriToFutureResponse: Map<String, Future<Response>> = uris
+                .associateWith { uri -> Callable { healthCheckService.check(uri) } }
+                .mapValues { (_, task) -> executors.submit(task) }
+
+            val healthEntities: List<HealthEntity> = uriToFutureResponse
+                .mapValues { (_, value) -> value.get() }
+                .map { (uri, response) -> toHealthEntity(uri, response) }
+
+            healthCheckRepository.saveAll(healthEntities)
+            logger.info("Updating of statuses took ${stopWatch.run { stop(); lastTaskTimeMillis }} ms")
+        }
     }
 
-    private fun toHealthEntity(responsePair: Pair<String, Response>) =
+    private fun toHealthEntity(uri: String, response: Response) =
         HealthEntity().apply {
             this.healthCheckTime = LocalDateTime.now()
-            this.uri = responsePair.first
-            this.responseTime = responsePair.second.responseTime
-            this.responseStatusCode = responsePair.second.httpStatus.value()
+            this.uri = uri
+            this.responseTime = response.responseTime
+            this.responseStatusCode = response.httpStatus.value()
         }
 
 }
